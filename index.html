@@ -19,11 +19,7 @@
       --font-body: 'DM Sans', sans-serif;
     }
     html, body { height: 100%; }
-    body {
-      background: var(--deep); color: var(--text-primary);
-      font-family: var(--font-body); font-weight: 300;
-      overflow: hidden;
-    }
+    body { background: var(--deep); color: var(--text-primary); font-family: var(--font-body); font-weight: 300; overflow: hidden; }
     body::before {
       content: ''; position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
@@ -44,19 +40,93 @@
     .q-text { font-family: var(--font-display); font-size: clamp(1.6rem, 3.5vw, 2.8rem); font-weight: 300; line-height: 1.25; color: var(--white); margin-bottom: 12px; }
     .q-text em { font-style: italic; color: var(--viola-light); }
     .q-sub { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 48px; max-width: 600px; }
+
+    /* SLIDER — IMPROVED HITBOX + CLICKABLE LABELS */
     .slider-wrap { width: 100%; margin-bottom: 40px; }
-    .slider-labels { display: flex; justify-content: space-between; margin-bottom: 16px; }
-    .slider-labels span { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.06em; color: var(--text-muted); max-width: 18%; text-align: center; line-height: 1.4; }
+    .slider-labels {
+      display: flex; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .slider-labels span {
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.06em;
+      color: var(--text-muted); max-width: 18%; text-align: center; line-height: 1.4;
+      cursor: pointer;
+      padding: 8px 4px;
+      transition: color 0.2s;
+      user-select: none;
+      flex: 1;
+    }
+    .slider-labels span:hover { color: var(--text-primary); }
+    .slider-labels span.active { color: var(--viola-light); font-weight: 600; }
     .slider-labels span:first-child { text-align: left; }
     .slider-labels span:last-child { text-align: right; }
-    .slider-track-wrap { position: relative; padding: 16px 0; }
-    input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 2px; background: var(--deep-border); outline: none; cursor: pointer; border-radius: 2px; }
-    input[type="range"]::-webkit-slider-runnable-track { height: 2px; border-radius: 2px; background: linear-gradient(to right, var(--viola) 0%, var(--viola) var(--pct, 0%), var(--deep-border) var(--pct, 0%)); }
-    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--viola); box-shadow: 0 0 0 4px rgba(167,45,145,0.2); cursor: pointer; margin-top: -13px; transition: box-shadow 0.2s, transform 0.15s; }
-    input[type="range"]::-webkit-slider-thumb:hover { box-shadow: 0 0 0 8px rgba(167,45,145,0.25); transform: scale(1.1); }
-    input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: var(--viola); border: none; cursor: pointer; }
+    .slider-track-wrap {
+      position: relative;
+      padding: 24px 0; /* increased padding for larger hit area */
+      cursor: pointer;
+    }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 32px; /* visual height bigger for easier clicking */
+      background: transparent;
+      outline: none; cursor: pointer;
+      margin: 0;
+    }
+    /* Custom track styled via pseudo-element since we increased height */
+    .slider-track-wrap::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 50%;
+      height: 2px;
+      background: var(--deep-border);
+      border-radius: 2px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .slider-track-wrap::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 50%;
+      height: 2px;
+      width: var(--pct, 0%);
+      background: linear-gradient(90deg, var(--viola), var(--viola-light));
+      border-radius: 2px;
+      transform: translateY(-50%);
+      pointer-events: none;
+      transition: width 0.2s ease;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 32px; background: transparent;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--viola);
+      box-shadow: 0 0 0 6px rgba(167,45,145,0.18), 0 4px 12px rgba(0,0,0,0.4);
+      cursor: grab;
+      margin-top: 0;
+      transition: box-shadow 0.2s, transform 0.15s;
+      border: 3px solid var(--deep);
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 10px rgba(167,45,145,0.25), 0 4px 12px rgba(0,0,0,0.4);
+      transform: scale(1.05);
+    }
+    input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
+    input[type="range"]::-moz-range-track {
+      height: 32px; background: transparent; border: none;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--viola);
+      cursor: grab;
+      border: 3px solid var(--deep);
+      box-shadow: 0 0 0 6px rgba(167,45,145,0.18);
+    }
     .slider-value-display { text-align: center; margin-top: 20px; }
     .slider-current-label { font-family: var(--font-display); font-size: 1.1rem; font-style: italic; color: var(--text-primary); min-height: 1.6rem; transition: opacity 0.2s; }
+
+    /* CHOICES */
     .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
     .choice-btn { background: var(--deep-surface); border: 1px solid var(--deep-border); padding: 14px 20px; color: var(--text-secondary); font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; text-align: left; cursor: pointer; transition: border-color 0.2s, background 0.2s, color 0.2s; display: flex; align-items: center; gap: 14px; }
     .choice-btn:hover { border-color: var(--viola); background: rgba(38,26,58,0.8); color: var(--text-primary); }
@@ -64,29 +134,80 @@
     .choice-check { width: 18px; height: 18px; border: 1.5px solid var(--deep-border); border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .choice-btn.selected .choice-check { background: var(--viola); border-color: var(--viola); }
     .choice-btn.selected .choice-check::after { content: '✓'; color: var(--white); font-size: 11px; font-weight: 700; }
+
+    /* INPUTS */
     .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
     .field-group label { display: block; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .field-group label .req { color: var(--viola-light); margin-left: 4px; }
     .field-group input { width: 100%; background: var(--deep-surface); border: 1px solid var(--deep-border); color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; padding: 14px 18px; outline: none; transition: border-color 0.2s; }
     .field-group input:focus { border-color: var(--viola); }
     .field-group input::placeholder { color: var(--text-muted); }
+    .field-group input.invalid { border-color: #FF6B8A; }
+
     .open-textarea { width: 100%; background: var(--deep-surface); border: 1px solid var(--deep-border); color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; padding: 16px 18px; outline: none; transition: border-color 0.2s; resize: none; min-height: 140px; margin-bottom: 40px; }
     .open-textarea:focus { border-color: var(--viola); }
     .open-textarea::placeholder { color: var(--text-muted); }
+
     .conditional-field { display: none; margin-top: -16px; margin-bottom: 40px; }
     .conditional-field.visible { display: block; }
     .conditional-field input { width: 100%; background: var(--deep-surface); border: 1px solid var(--deep-border); color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; padding: 14px 18px; outline: none; transition: border-color 0.2s; }
     .conditional-field input:focus { border-color: var(--viola); }
     .conditional-field input::placeholder { color: var(--text-muted); }
     .conditional-label { display: block; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+
+    /* CONTACT GRID — Q9 conditional structured fields */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; margin-bottom: 20px; }
+    .contact-col { display: flex; flex-direction: column; }
+    .contact-select {
+      width: 100%; background: var(--deep-surface); border: 1px solid var(--deep-border);
+      color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem; font-weight: 300;
+      padding: 14px 18px; outline: none; transition: border-color 0.2s;
+      cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%237A6A94' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+    .contact-select:focus { border-color: var(--viola); }
+    .contact-select option { background: var(--deep-mid); color: var(--text-primary); }
+    .contact-time-block { margin-top: 4px; }
+    .time-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .time-btn {
+      background: var(--deep-surface); border: 1px solid var(--deep-border);
+      color: var(--text-secondary); font-family: var(--font-body);
+      font-size: 0.78rem; font-weight: 500; letter-spacing: 0.04em;
+      padding: 12px 8px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .time-btn:hover { border-color: var(--viola); color: var(--text-primary); background: rgba(38,26,58,0.8); }
+    .time-btn.selected { border-color: var(--viola); background: rgba(167,45,145,0.15); color: var(--text-primary); }
+
+    /* BUTTONS */
     .btn-next { background: var(--viola); color: var(--white); font-family: var(--font-body); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 16px 48px; border: none; cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center; gap: 12px; }
     .btn-next:hover { background: var(--viola-light); transform: translateY(-2px); }
-    .btn-next:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .btn-next:disabled { opacity: 0.35; cursor: not-allowed; transform: none; background: var(--viola); }
+    .btn-next:disabled:hover { background: var(--viola); transform: none; }
     .btn-next .arrow { font-size: 18px; transition: transform 0.2s; }
     .btn-next:hover .arrow { transform: translateX(4px); }
     .btn-back { background: transparent; color: var(--text-muted); font-family: var(--font-body); font-size: 0.78rem; font-weight: 400; letter-spacing: 0.08em; border: none; cursor: pointer; padding: 10px 0; transition: color 0.2s; margin-right: 24px; }
     .btn-back:hover { color: var(--text-primary); }
-    .btn-row { display: flex; align-items: center; margin-top: 8px; }
-    .submit-error { color: #FF6B8A; font-size: 0.85rem; margin-top: 16px; min-height: 1.2rem; }
+    .btn-row { display: flex; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 12px; }
+
+    /* VALIDATION ERROR MSG */
+    .validation-msg {
+      display: none;
+      color: #FF8FA5;
+      font-size: 0.82rem;
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: rgba(255,107,138,0.08);
+      border-left: 2px solid #FF6B8A;
+    }
+    .validation-msg.visible { display: block; }
+
+    .submit-error { color: #FF8FA5; font-size: 0.85rem; margin-top: 16px; min-height: 1.2rem; }
+
     .intro-screen .q-text { font-size: clamp(2rem, 4vw, 3.6rem); margin-bottom: 20px; }
     .intro-meta { display: flex; gap: 24px; margin-bottom: 32px; flex-wrap: wrap; }
     .intro-meta-item { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
@@ -94,11 +215,13 @@
     .intro-body { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.85; margin-bottom: 20px; max-width: 640px; }
     .intro-sig { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 48px; }
     .intro-sig strong { color: var(--orange); font-weight: 500; letter-spacing: 0.04em; }
+
     .how-callout { background: var(--deep-surface); border: 1px solid var(--deep-border); border-left: 3px solid var(--viola); padding: 20px 24px; margin-bottom: 40px; }
     .how-callout-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--viola-light); margin-bottom: 10px; }
     .how-callout p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 8px; }
     .how-callout p:last-child { margin-bottom: 0; }
     .how-example { font-family: var(--font-display); font-style: italic; font-size: 0.95rem; color: var(--text-primary); border-left: 1px solid var(--deep-border); padding-left: 12px; margin: 6px 0; }
+
     .success-screen { text-align: center; }
     .success-icon { width: 72px; height: 72px; border-radius: 50%; background: rgba(167,45,145,0.12); border: 1px solid var(--viola); display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; font-size: 28px; color: var(--viola-light); }
     .success-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300; color: var(--white); margin-bottom: 20px; line-height: 1.2; }
@@ -106,12 +229,18 @@
     .success-body { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.85; max-width: 560px; margin: 0 auto 40px; }
     .back-home { font-size: 0.8rem; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; }
     .back-home:hover { color: var(--viola-light); }
+
     .screen::after { content: ''; position: fixed; top: -150px; right: -150px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(167,45,145,0.1) 0%, transparent 70%); pointer-events: none; z-index: -1; }
+
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
     @media (max-width: 640px) {
       .top-nav { padding: 16px 24px; }
       .screen { padding: 72px 24px 40px; }
       .field-pair { grid-template-columns: 1fr; }
+      .slider-labels span { font-size: 0.62rem; padding: 6px 2px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .time-buttons { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -155,34 +284,34 @@
     <p class="q-sub">Your answers go directly to Seth. No spam, no sharing.</p>
     <div class="field-pair">
       <div class="field-group">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" placeholder="Your name" />
+        <label for="name">Full Name<span class="req">*</span></label>
+        <input type="text" id="name" name="name" placeholder="Your name" required />
       </div>
       <div class="field-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" placeholder="your@email.com" />
+        <label for="email">Email Address<span class="req">*</span></label>
+        <input type="email" id="email" name="email" placeholder="your@email.com" required />
       </div>
     </div>
     <div class="btn-row">
       <button class="btn-back" onclick="goTo(0)">← Back</button>
-      <button class="btn-next" onclick="goTo(2)">Next <span class="arrow">→</span></button>
+      <button class="btn-next" onclick="validateAndAdvance(1, 2)">Next <span class="arrow">→</span></button>
     </div>
+    <div class="validation-msg" id="validation-1">Please complete all required fields before continuing.</div>
   </div>
 </div>
 
-<!-- ── SCREEN 2: Q1 — Frequency ── -->
+<!-- ── SCREEN 2: Q1 ── -->
 <div class="screen" id="screen-2">
   <div class="screen-inner">
     <div class="q-label">01 — Your Experience</div>
     <div class="q-text">How often do you miss unspoken cues in professional conversations?</div>
     <p class="q-sub">Things like tone shifts, body language changes, or contradictions between what someone says and how they actually seem.</p>
     <div class="slider-wrap">
-      <div class="slider-labels">
-        <span>Never</span><span>Rarely</span><span>Sometimes</span><span>Often</span><span>Very often</span>
+      <div class="slider-labels" data-slider="q1-slider">
+        <span data-val="1">Never</span><span data-val="2">Rarely</span><span data-val="3">Sometimes</span><span data-val="4">Often</span><span data-val="5">Very often</span>
       </div>
       <div class="slider-track-wrap">
-        <input type="range" min="1" max="5" value="3" id="q1-slider"
-          oninput="updateSlider(this, q1Labels)" />
+        <input type="range" min="1" max="5" value="3" id="q1-slider" oninput="updateSlider(this, q1Labels)" />
       </div>
       <div class="slider-value-display">
         <div class="slider-current-label" id="q1-label">Sometimes — it happens but I manage around it</div>
@@ -195,19 +324,18 @@
   </div>
 </div>
 
-<!-- ── SCREEN 3: Q2 — Impact ── -->
+<!-- ── SCREEN 3: Q2 ── -->
 <div class="screen" id="screen-3">
   <div class="screen-inner">
     <div class="q-label">02 — Real-World Impact</div>
     <div class="q-text">When you miss unspoken cues, how significant is the impact on your work or relationships?</div>
     <p class="q-sub">Think about missed opportunities, damaged relationships, or misunderstandings.</p>
     <div class="slider-wrap">
-      <div class="slider-labels">
-        <span>Minimal impact</span><span>Minor</span><span>Moderate</span><span>Significant</span><span>Major impact</span>
+      <div class="slider-labels" data-slider="q2-slider">
+        <span data-val="1">Minimal impact</span><span data-val="2">Minor</span><span data-val="3">Moderate</span><span data-val="4">Significant</span><span data-val="5">Major impact</span>
       </div>
       <div class="slider-track-wrap">
-        <input type="range" min="1" max="5" value="3" id="q2-slider"
-          oninput="updateSlider(this, q2Labels)" />
+        <input type="range" min="1" max="5" value="3" id="q2-slider" oninput="updateSlider(this, q2Labels)" />
       </div>
       <div class="slider-value-display">
         <div class="slider-current-label" id="q2-label">Moderate — noticeable but I work around it</div>
@@ -220,19 +348,18 @@
   </div>
 </div>
 
-<!-- ── SCREEN 4: Q3 — Product Value ── -->
+<!-- ── SCREEN 4: Q3 ── -->
 <div class="screen" id="screen-4">
   <div class="screen-inner">
     <div class="q-label">03 — Product Value</div>
     <div class="q-text">How valuable would real-time alerts during video calls be to you?</div>
     <p class="q-sub">Example alert: "They said 'sounds good' but their tone sounds hesitant and they're looking away. They might have concerns they haven't voiced yet."</p>
     <div class="slider-wrap">
-      <div class="slider-labels">
-        <span>Not valuable</span><span>Slightly useful</span><span>Somewhat valuable</span><span>Very valuable</span><span>Extremely valuable</span>
+      <div class="slider-labels" data-slider="q3-slider">
+        <span data-val="1">Not valuable</span><span data-val="2">Slightly useful</span><span data-val="3">Somewhat valuable</span><span data-val="4">Very valuable</span><span data-val="5">Extremely valuable</span>
       </div>
       <div class="slider-track-wrap">
-        <input type="range" min="1" max="5" value="3" id="q3-slider"
-          oninput="updateSlider(this, q3Labels)" />
+        <input type="range" min="1" max="5" value="3" id="q3-slider" oninput="updateSlider(this, q3Labels)" />
       </div>
       <div class="slider-value-display">
         <div class="slider-current-label" id="q3-label">Somewhat valuable — could be helpful in certain situations</div>
@@ -245,19 +372,18 @@
   </div>
 </div>
 
-<!-- ── SCREEN 5: Q4 — AI Coaching ── -->
+<!-- ── SCREEN 5: Q4 ── -->
 <div class="screen" id="screen-5">
   <div class="screen-inner">
     <div class="q-label">04 — AI Coaching</div>
     <div class="q-text">How helpful would AI-suggested responses be in the moment?</div>
     <p class="q-sub">Example: The AI detects frustration and suggests — "You might say: 'I want to make sure I understand — is there something I'm missing?'"</p>
     <div class="slider-wrap">
-      <div class="slider-labels">
-        <span>Not helpful — too robotic</span><span>Slightly</span><span>Neutral</span><span>Helpful with control</span><span>Very helpful</span>
+      <div class="slider-labels" data-slider="q4-slider">
+        <span data-val="1">Not helpful — too robotic</span><span data-val="2">Slightly</span><span data-val="3">Neutral</span><span data-val="4">Helpful with control</span><span data-val="5">Very helpful</span>
       </div>
       <div class="slider-track-wrap">
-        <input type="range" min="1" max="5" value="3" id="q4-slider"
-          oninput="updateSlider(this, q4Labels)" />
+        <input type="range" min="1" max="5" value="3" id="q4-slider" oninput="updateSlider(this, q4Labels)" />
       </div>
       <div class="slider-value-display">
         <div class="slider-current-label" id="q4-label">Neutral — might be helpful, not sure</div>
@@ -270,12 +396,12 @@
   </div>
 </div>
 
-<!-- ── SCREEN 6: Q5 — Use Cases ── -->
+<!-- ── SCREEN 6: Q5 — Multi-select ── -->
 <div class="screen" id="screen-6">
   <div class="screen-inner">
     <div class="q-label">05 — Use Cases</div>
     <div class="q-text">Where would you realistically use this tool?</div>
-    <p class="q-sub">Select all that apply.</p>
+    <p class="q-sub">Select all that apply. <span style="color:var(--viola-light);">Required.</span></p>
     <div class="choices" id="q5-choices">
       <button class="choice-btn" data-value="client_calls" onclick="toggleChoice(this)"><span class="choice-check"></span>Client or prospect calls (business development, sales)</button>
       <button class="choice-btn" data-value="internal" onclick="toggleChoice(this)"><span class="choice-check"></span>Internal meetings or team calls</button>
@@ -285,17 +411,18 @@
     </div>
     <div class="btn-row">
       <button class="btn-back" onclick="goTo(5)">← Back</button>
-      <button class="btn-next" onclick="goTo(7)">Next <span class="arrow">→</span></button>
+      <button class="btn-next" onclick="validateAndAdvance(6, 7)">Next <span class="arrow">→</span></button>
     </div>
+    <div class="validation-msg" id="validation-6">Please select at least one option to continue.</div>
   </div>
 </div>
 
-<!-- ── SCREEN 7: Q6 — Feature Priority ── -->
+<!-- ── SCREEN 7: Q6 — Single select ── -->
 <div class="screen" id="screen-7">
   <div class="screen-inner">
     <div class="q-label">06 — Feature Priority</div>
     <div class="q-text">Which feature matters most to you?</div>
-    <p class="q-sub">Choose one.</p>
+    <p class="q-sub">Choose one. <span style="color:var(--viola-light);">Required.</span></p>
     <div class="choices" id="q6-choices">
       <button class="choice-btn" data-value="realtime" onclick="toggleSingle(this,'q6-choices')"><span class="choice-check"></span>Real-time alerts during calls</button>
       <button class="choice-btn" data-value="coaching" onclick="toggleSingle(this,'q6-choices')"><span class="choice-check"></span>Suggestions on what to say in the moment</button>
@@ -305,24 +432,24 @@
     </div>
     <div class="btn-row">
       <button class="btn-back" onclick="goTo(6)">← Back</button>
-      <button class="btn-next" onclick="goTo(8)">Next <span class="arrow">→</span></button>
+      <button class="btn-next" onclick="validateAndAdvance(7, 8)">Next <span class="arrow">→</span></button>
     </div>
+    <div class="validation-msg" id="validation-7">Please select an option to continue.</div>
   </div>
 </div>
 
-<!-- ── SCREEN 8: Q7 — Privacy ── -->
+<!-- ── SCREEN 8: Q7 ── -->
 <div class="screen" id="screen-8">
   <div class="screen-inner">
     <div class="q-label">07 — Privacy</div>
     <div class="q-text">How comfortable are you with on-device AI analysis of your video calls?</div>
     <p class="q-sub">All analysis happens locally on your device — no video or audio is uploaded or stored anywhere.</p>
     <div class="slider-wrap">
-      <div class="slider-labels">
-        <span>Not comfortable</span><span>Hesitant</span><span>Neutral</span><span>Mostly comfortable</span><span>Fully comfortable</span>
+      <div class="slider-labels" data-slider="q7-slider">
+        <span data-val="1">Not comfortable</span><span data-val="2">Hesitant</span><span data-val="3">Neutral</span><span data-val="4">Mostly comfortable</span><span data-val="5">Fully comfortable</span>
       </div>
       <div class="slider-track-wrap">
-        <input type="range" min="1" max="5" value="3" id="q7-slider"
-          oninput="updateSlider(this, q7Labels)" />
+        <input type="range" min="1" max="5" value="3" id="q7-slider" oninput="updateSlider(this, q7Labels)" />
       </div>
       <div class="slider-value-display">
         <div class="slider-current-label" id="q7-label">Neutral — need to know more before deciding</div>
@@ -335,12 +462,12 @@
   </div>
 </div>
 
-<!-- ── SCREEN 9: Q8 — Pricing ── -->
+<!-- ── SCREEN 9: Q8 ── -->
 <div class="screen" id="screen-9">
   <div class="screen-inner">
     <div class="q-label">08 — Pricing</div>
     <div class="q-text">Which pricing model makes the most sense for you?</div>
-    <p class="q-sub">Market research only — no commitment to any model.</p>
+    <p class="q-sub">Market research only — no commitment to any model. <span style="color:var(--viola-light);">Required.</span></p>
     <div class="choices" id="q8-choices">
       <button class="choice-btn" data-value="monthly" onclick="toggleSingle(this,'q8-choices')"><span class="choice-check"></span>Monthly subscription (~$15–25/month)</button>
       <button class="choice-btn" data-value="annual" onclick="toggleSingle(this,'q8-choices')"><span class="choice-check"></span>Annual subscription with discount (~$150–250/year)</button>
@@ -350,17 +477,18 @@
     </div>
     <div class="btn-row">
       <button class="btn-back" onclick="goTo(8)">← Back</button>
-      <button class="btn-next" onclick="goTo(10)">Next <span class="arrow">→</span></button>
+      <button class="btn-next" onclick="validateAndAdvance(9, 10)">Next <span class="arrow">→</span></button>
     </div>
+    <div class="validation-msg" id="validation-9">Please select an option to continue.</div>
   </div>
 </div>
 
-<!-- ── SCREEN 10: Q9 — Early Access ── -->
+<!-- ── SCREEN 10: Q9 ── -->
 <div class="screen" id="screen-10">
   <div class="screen-inner">
     <div class="q-label">09 — Early Access</div>
     <div class="q-text">Would you want to be one of the first to try Nerovion?</div>
-    <p class="q-sub">Early users get free or discounted access during development and direct contact with Seth.</p>
+    <p class="q-sub">Early users get free or discounted access during development and direct contact with Seth. <span style="color:var(--viola-light);">Required.</span></p>
     <div class="choices" id="q9-choices">
       <button class="choice-btn" data-value="definitely" onclick="toggleSingle(this,'q9-choices'); showConditional(true)"><span class="choice-check"></span>Definitely — I want in</button>
       <button class="choice-btn" data-value="probably" onclick="toggleSingle(this,'q9-choices'); showConditional(true)"><span class="choice-check"></span>Probably — I'd want to learn more first</button>
@@ -369,17 +497,41 @@
       <button class="choice-btn" data-value="def_no" onclick="toggleSingle(this,'q9-choices'); showConditional(false)"><span class="choice-check"></span>Definitely not</button>
     </div>
     <div class="conditional-field" id="contact-field">
-      <label class="conditional-label">Best way to reach you and timing</label>
-      <input type="text" id="q9-contact" placeholder="Phone, email preference, best time to connect..." />
+      <div class="contact-grid">
+        <div class="contact-col">
+          <label class="conditional-label">Preferred Contact Method</label>
+          <select id="q9-method" class="contact-select" onchange="updateContactPlaceholder()">
+            <option value="">Select one...</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="text">Text message</option>
+            <option value="either">Either is fine</option>
+          </select>
+        </div>
+        <div class="contact-col">
+          <label class="conditional-label">Contact Details</label>
+          <input type="text" id="q9-contact" placeholder="Select method first..." />
+        </div>
+      </div>
+      <div class="contact-time-block">
+        <label class="conditional-label">Best Time to Reach You</label>
+        <div class="time-buttons" id="q9-time">
+          <button type="button" class="time-btn" data-value="morning" onclick="toggleTime(this)">Morning</button>
+          <button type="button" class="time-btn" data-value="afternoon" onclick="toggleTime(this)">Afternoon</button>
+          <button type="button" class="time-btn" data-value="evening" onclick="toggleTime(this)">Evening</button>
+          <button type="button" class="time-btn" data-value="anytime" onclick="toggleTime(this)">Anytime</button>
+        </div>
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn-back" onclick="goTo(9)">← Back</button>
-      <button class="btn-next" onclick="goTo(11)">Next <span class="arrow">→</span></button>
+      <button class="btn-next" onclick="validateAndAdvance(10, 11)">Next <span class="arrow">→</span></button>
     </div>
+    <div class="validation-msg" id="validation-10">Please select an option to continue.</div>
   </div>
 </div>
 
-<!-- ── SCREEN 11: Q10 — Open Feedback ── -->
+<!-- ── SCREEN 11: Q10 — OPTIONAL ── -->
 <div class="screen" id="screen-11">
   <div class="screen-inner">
     <div class="q-label">10 — Open Feedback</div>
@@ -432,27 +584,123 @@
   function updateSlider(input, labels) {
     const val = parseInt(input.value);
     const pct = ((val - 1) / 4) * 100;
-    input.style.setProperty('--pct', pct + '%');
+    // Set CSS var on the wrapper for the fill bar
+    const wrap = input.closest('.slider-track-wrap');
+    if (wrap) wrap.style.setProperty('--pct', pct + '%');
     const labelId = input.id.replace('-slider', '-label');
     const labelEl = document.getElementById(labelId);
     if (labelEl) labelEl.textContent = labels[val - 1];
+    // Update active label highlighting
+    const labelGroup = document.querySelector('.slider-labels[data-slider="' + input.id + '"]');
+    if (labelGroup) {
+      labelGroup.querySelectorAll('span').forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.val) === val);
+      });
+    }
   }
+
+  // Init all sliders
   document.querySelectorAll('input[type="range"]').forEach(slider => {
     const pct = ((parseInt(slider.value) - 1) / 4) * 100;
-    slider.style.setProperty('--pct', pct + '%');
+    const wrap = slider.closest('.slider-track-wrap');
+    if (wrap) wrap.style.setProperty('--pct', pct + '%');
+    // Mark active label initially
+    const labelGroup = document.querySelector('.slider-labels[data-slider="' + slider.id + '"]');
+    if (labelGroup) {
+      const v = parseInt(slider.value);
+      labelGroup.querySelectorAll('span').forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.val) === v);
+      });
+    }
   });
 
+  // Click on slider labels to set value
+  document.querySelectorAll('.slider-labels').forEach(group => {
+    group.querySelectorAll('span').forEach(span => {
+      span.addEventListener('click', () => {
+        const sliderId = group.dataset.slider;
+        const slider = document.getElementById(sliderId);
+        if (!slider) return;
+        slider.value = span.dataset.val;
+        // Trigger updateSlider with the right labels array
+        const labelsMap = { 'q1-slider': q1Labels, 'q2-slider': q2Labels, 'q3-slider': q3Labels, 'q4-slider': q4Labels, 'q7-slider': q7Labels };
+        updateSlider(slider, labelsMap[sliderId] || []);
+      });
+    });
+  });
+
+  // ── CHOICES ──
   function toggleChoice(btn) { btn.classList.toggle('selected'); }
   function toggleSingle(btn, groupId) {
     const group = document.getElementById(groupId);
     group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
   }
+
   function showConditional(show) {
     const cf = document.getElementById('contact-field');
     cf.classList.toggle('visible', show);
   }
 
+  // Update contact details placeholder based on method selection
+  function updateContactPlaceholder() {
+    const method = document.getElementById('q9-method').value;
+    const input = document.getElementById('q9-contact');
+    const placeholders = {
+      email: 'your@email.com',
+      phone: '(555) 555-5555',
+      text: '(555) 555-5555',
+      either: 'Email or phone number'
+    };
+    input.placeholder = placeholders[method] || 'Select method first...';
+  }
+
+  // Toggle time button selection (single select)
+  function toggleTime(btn) {
+    document.querySelectorAll('#q9-time .time-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  // ── VALIDATION ──
+  function validateScreen(screenIdx) {
+    if (screenIdx === 1) {
+      // Name + Email screen
+      const name = document.getElementById('name');
+      const email = document.getElementById('email');
+      const nameOk = name.value.trim().length > 0;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+      name.classList.toggle('invalid', !nameOk);
+      email.classList.toggle('invalid', !emailOk);
+      return nameOk && emailOk;
+    }
+    if (screenIdx === 6) {
+      // Q5 multi-select — at least one
+      return document.querySelectorAll('#q5-choices .choice-btn.selected').length > 0;
+    }
+    if (screenIdx === 7) {
+      return !!document.querySelector('#q6-choices .choice-btn.selected');
+    }
+    if (screenIdx === 9) {
+      return !!document.querySelector('#q8-choices .choice-btn.selected');
+    }
+    if (screenIdx === 10) {
+      return !!document.querySelector('#q9-choices .choice-btn.selected');
+    }
+    return true;
+  }
+
+  function validateAndAdvance(fromIdx, toIdx) {
+    if (validateScreen(fromIdx)) {
+      const v = document.getElementById('validation-' + fromIdx);
+      if (v) v.classList.remove('visible');
+      goTo(toIdx);
+    } else {
+      const v = document.getElementById('validation-' + fromIdx);
+      if (v) v.classList.add('visible');
+    }
+  }
+
+  // ── NAVIGATION ──
   let current = 0;
   function goTo(idx) {
     const prev = document.getElementById('screen-' + current);
@@ -465,6 +713,7 @@
       updateProgress();
     }, 200);
   }
+
   function updateProgress() {
     const questionScreens = 11;
     const pct = current <= 0 ? 0 : Math.min(((current) / questionScreens) * 100, 100);
@@ -482,7 +731,6 @@
     submitBtn.disabled = true;
     submitBtn.innerHTML = 'Submitting... <span class="arrow">→</span>';
 
-    // Build readable label values
     const q1Val = document.getElementById('q1-slider').value;
     const q2Val = document.getElementById('q2-slider').value;
     const q3Val = document.getElementById('q3-slider').value;
@@ -495,6 +743,15 @@
     const q6Code = document.querySelector('#q6-choices .choice-btn.selected')?.dataset.value || '';
     const q8Code = document.querySelector('#q8-choices .choice-btn.selected')?.dataset.value || '';
     const q9Code = document.querySelector('#q9-choices .choice-btn.selected')?.dataset.value || '';
+
+    // Q9 structured contact (only if user opted in)
+    const contactMethodLabels = { email: 'Email', phone: 'Phone', text: 'Text message', either: 'Either email or phone' };
+    const timeLabels = { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening', anytime: 'Anytime' };
+    const q9Method = document.getElementById('q9-method').value;
+    const q9MethodLabel = contactMethodLabels[q9Method] || '';
+    const q9ContactDetails = document.getElementById('q9-contact').value.trim();
+    const q9TimeCode = document.querySelector('#q9-time .time-btn.selected')?.dataset.value || '';
+    const q9TimeLabel = timeLabels[q9TimeCode] || '';
 
     const payload = {
       _subject: 'New Nerovion B2C Survey Submission',
@@ -510,7 +767,9 @@
       'Q7 — Privacy comfort': `${q7Val}/5 — ${SLIDER_TEXT_LABELS.q7[q7Val-1]}`,
       'Q8 — Preferred pricing': CHOICE_TEXT_LABELS.q8[q8Code] || '(none selected)',
       'Q9 — Early access interest': CHOICE_TEXT_LABELS.q9[q9Code] || '(none selected)',
-      'Q9 — Contact preference': document.getElementById('q9-contact').value || '(not provided)',
+      'Q9 — Preferred contact method': q9MethodLabel || '(not provided)',
+      'Q9 — Contact details': q9ContactDetails || '(not provided)',
+      'Q9 — Best time to reach': q9TimeLabel || '(not provided)',
       'Q10 — Open feedback': document.getElementById('q10-open').value || '(not provided)'
     };
 
